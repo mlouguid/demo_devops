@@ -16,3 +16,4 @@
       debug:
         msg: "PHP is not installed."
       when: php_version_output.rc != 0
+y
