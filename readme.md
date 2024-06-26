@@ -15,6 +15,3 @@ En ce qui concerne la partie technique, le projet a été développé en PHP (Fr
 <p><img src="https://raw.githubusercontent.com/mohamedidmansour/E-commerceWebApp-Laravel-Ajax/master/screenshot/e-commerce-sc4.jpg"/></p>
 # <p><a href="https://raw.githubusercontent.com/mohamedidmansour/E-commerceWebApp-Laravel-Ajax/master/screenshot/">more screenshot</a></p>
 
-###### CREATED BY:     [@IDMANSOUR MOHAMED](https://www.linkedin.com/in/mohamedidmansour/)
-###### EMAIL ADDRESSE: [mi.idmansour@gmail.com]()
-###### LinkedIn      : [https://www.linkedin.com/in/mohamedidmansour/]
