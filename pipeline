@@ -1,0 +1,57 @@
+pipeline {
+    agent any
+
+    environment {
+        // Define PHP and Composer paths
+        PHP_PATH = "/usr/bin/php"  // Update with your PHP installation path
+        COMPOSER_PATH = "/usr/local/bin/composer"  // Update with your Composer installation path
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout code from Git repository
+                checkout scm
+            }
+        }
+
+        stage('PHP Version Check') {
+            steps {
+                // Print PHP version
+                sh "${PHP_PATH} --version"
+            }
+        }
+
+        stage('Install Composer Dependencies') {
+            steps {
+                // Install Composer dependencies
+                sh "${COMPOSER_PATH} install"
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                // Example: Run PHPUnit tests (adjust as per your testing framework)
+                sh "${PHP_PATH} vendor/bin/phpunit --configuration phpunit.xml"
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                // Run SonarQube scanner with required properties
+                withSonarQubeEnv('SonarQube_Server') {
+                    sh """
+                    ${scannerHome}/bin/sonar-scanner \
+                      -Dsonar.projectKey=demo-php \
+                      -Dsonar.projectName=demo-php \
+                      -Dsonar.language=php \
+                      -Dsonar.sourceEncoding=UTF-8 \
+                      -Dsonar.php.coverage.reportPaths=coverage.xml \
+                      -Dsonar.projectVersion=1.0 \
+                      -Dsonar.sources=.
+                    """
+                }
+            }
+        }
+    }
+}
