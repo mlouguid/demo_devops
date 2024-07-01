@@ -1,0 +1,55 @@
+# PHP Pipeline for Azure DevOps on Debian
+trigger:
+- main
+
+pool:
+  vmImage: 'debian-11'
+
+variables:
+  phpVersion: '7.4' # Specify the PHP version you want to use
+
+steps:
+- script: |
+    sudo apt-get update
+    sudo apt-get install -y apt-transport-https lsb-release ca-certificates wget
+    wget -q https://packages.sury.org/php/apt.gpg -O- | sudo apt-key add -
+    echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/php.list
+    sudo apt-get update
+    sudo apt-get install -y php$phpVersion php$phpVersion-xml php$phpVersion-mbstring php$phpVersion-zip unzip
+  displayName: 'Install PHP and required extensions'
+
+- script: |
+    curl -sS https://getcomposer.org/installer | php
+    sudo mv composer.phar /usr/local/bin/composer
+    composer -V
+  displayName: 'Install Composer'
+
+- script: |
+    composer install
+  displayName: 'Install Composer dependencies'
+
+- script: |
+    ./vendor/bin/phpunit --configuration phpunit.xml
+  displayName: 'Run PHPUnit tests'
+
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '3.x.x' # Required for SonarScanner
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+
+- task: SonarCloudPrepare@1
+  inputs:
+    SonarCloud: 'YourSonarCloudServiceConnection'
+    organization: 'your-organization'
+    scannerMode: 'CLI'
+    configMode: 'manual'
+    cliProjectKey: 'your-project-key'
+    cliProjectName: 'Your Project Name'
+    cliSources: '.'
+
+- task: SonarCloudAnalyze@1
+
+- task: SonarCloudPublish@1
+  inputs:
+    pollingTimeoutSec: '300'
