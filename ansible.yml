@@ -1,0 +1,65 @@
+---
+- name: Install and configure GoAccess
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install dependencies
+      apt:
+        name: 
+          - libncursesw5-dev
+          - libgeoip-dev
+          - libmaxminddb-dev
+          - build-essential
+          - wget
+        state: present
+
+    - name: Download GoAccess source
+      get_url:
+        url: https://tar.goaccess.io/goaccess-1.5.2.tar.gz
+        dest: /tmp/goaccess.tar.gz
+
+    - name: Extract GoAccess source
+      unarchive:
+        src: /tmp/goaccess.tar.gz
+        dest: /tmp/
+        remote_src: yes
+
+    - name: Compile and install GoAccess
+      shell: |
+        cd /tmp/goaccess-1.5.2/
+        ./configure --enable-utf8 --enable-geoip=mmdb
+        make
+        make install
+      args:
+        creates: /usr/local/bin/goaccess
+
+    - name: Create directory for HTML report
+      file:
+        path: /var/www/html/reports
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Generate GoAccess report
+      command: >
+        goaccess /var/log/apache2/access.log
+        -o /var/www/html/reports/report.html
+        --log-format=COMBINED
+      args:
+        creates: /var/www/html/reports/report.html
+
+    - name: Ensure Apache is installed
+      apt:
+        name: apache2
+        state: present
+
+    - name: Ensure Apache is started
+      service:
+        name: apache2
+        state: started
+        enabled: yes
