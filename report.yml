@@ -1,0 +1,35 @@
+---
+- name: Install GoAccess and generate report
+  hosts: server_app
+  become: yes
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install GoAccess
+      apt:
+        name: goaccess
+        state: present
+
+    - name: Ensure log directory exists
+      file:
+        path: /var/log/nginx
+        state: directory
+
+    - name: Copy access.log to the server (if needed)
+      copy:
+        src: /path/to/your/access.log
+        dest: /var/log/nginx/access.log
+
+    - name: Generate GoAccess report
+      command: goaccess /var/log/nginx/access.log -o /var/www/html/report.html --log-format=COMBINED
+      args:
+        creates: /var/www/html/report.html
+
+    - name: Fetch the GoAccess report
+      fetch:
+        src: /var/www/html/report.html
+        dest: ./report.html
+        flat: yes
