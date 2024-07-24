@@ -20,7 +20,7 @@
 
     - name: Copy access.log to the server (if needed)
       copy:
-        src: /path/to/your/access.log
+#        src: /path/to/your/access.log
         dest: /var/log/nginx/access.log
 
     - name: Generate GoAccess report
