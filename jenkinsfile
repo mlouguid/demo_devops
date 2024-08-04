@@ -29,6 +29,13 @@ pipeline {
             }
         }
 
+         stage('Install npm') {
+            steps {
+                // Install npm
+                sh "npm install & npm update"
+            }
+        }
+
         stage('Run Tests') {
             steps {
                 // Example: Run PHPUnit tests (adjust as per your testing framework)
